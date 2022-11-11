@@ -1,35 +1,32 @@
 import math
 from collections import Counter
-def get_simple_theory(a, n):
+def get_simple_theory(a, n ,types=["+", "-", "*", "/", "**"]):
     
     results = {}
     # Addition - Subtraction
-    results["+"] = a + n
+    results["+"] = n - a
     results["-"] = a - n
     # Multiplication - Division
     results["*"] = 1/(a/n)
     results["/"] = a/n
     # Exponent - Square-root
-    if a == 1:
-        results["**"] = math.log(n)/math.log(a)
-    else:
-        results["**"] = 1
-
-    return results
-def format_results(results):
+    results["**"] = math.log(n)/math.log(a)
     out = []
-    for i in results:
-        for k, v in i.items():
+    for k, v in results.items():
+        if k in types:
             out.append({
                 "type": k,
                 "num": v,
                 "format": f"a {k} {v}"
                 })
     return out
+
+
 def get_theories(df):
     results = []
     for i in df:
-        results.append(get_simple_theory(i[0], i[1]))
+        for ii in get_simple_theory(i[0], i[1]):
+            results.append(ii)
     return results
 
 def sort_theories(values, total_list_length):
@@ -48,18 +45,26 @@ def sort_theories(values, total_list_length):
     return out
     
 
-
+def theory_web(*steps):
+    theories = [get_simple_theory(steps[0], steps[1])]
+    for i in range(len(steps)-1):
+        theories.append(get_simple_theory(steps[i], steps[i+1]))
+    print(theories)
 
 def main(df):
+    for i in df:
+        if 1 in i:
+            df.remove(i)
     output = []
-    theories = format_results(get_theories(df))
+    theories = get_theories(df)
     return sort_theories(theories, len(df))
 
 
 
 
 if __name__ == '__main__': # checks if the code is ran as a file
-    print(main([
-        [3, 6],
-        [6, 12]
-    ]))
+    # print(main([
+    #     [3, 6],
+    #     [6, 12]
+    # ]))
+    print(theory_web(3, 2, 10, 8, 101, 55))
